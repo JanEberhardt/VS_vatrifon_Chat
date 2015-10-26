@@ -2,39 +2,56 @@ package ch.ethz.inf.vs.a3.clock;
 
 /**
  * Created by jan on 23.10.15.
+ *
+ * simple implementation of LamportClock
  */
 public class LamportClock implements Clock {
+
+    private int time;
+
     @Override
     public void update(Clock other) {
-
+        LamportClock otherL = (LamportClock) other;
+        if(otherL.getTime() > getTime())
+            time = otherL.getTime();
     }
 
     @Override
     public void setClock(Clock other) {
-
+        LamportClock otherL = (LamportClock) other;
+        time = otherL.getTime();
     }
 
     @Override
     public void tick(Integer pid) {
-
+        time++;
     }
 
     @Override
     public boolean happenedBefore(Clock other) {
-        return false;
+        return getTime() < ((LamportClock) other).getTime();
+    }
+
+    @Override
+    public String toString(){
+        return time+"";
     }
 
     @Override
     public void setClockFromString(String clock) {
-
+        try {
+            time = Integer.parseInt(clock);
+        }
+        catch (NumberFormatException e){
+            return;
+        }
     }
 
     public void setTime(int time){
-        //todo
+        this.time = time;
     }
 
     public int getTime(){
-        //todo
-        return 0;
+        return time;
     }
 }

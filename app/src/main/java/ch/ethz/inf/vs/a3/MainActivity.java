@@ -56,7 +56,6 @@ public class MainActivity extends AppCompatActivity implements ResponseInterface
                 Message req = new Message(MainActivity.this.username, MessageTypes.REGISTER);
                 UDPWorker worker = new UDPWorker(req, MainActivity.this);
                 worker.execute();
-                // after this request we will still have 4 requests left...
             }
         });
     }
@@ -83,13 +82,14 @@ public class MainActivity extends AppCompatActivity implements ResponseInterface
     @Override
     public void handleResponse(Message msg) {
         Log.d("###", "response: "+msg.getJson().toString());
-        if(msg.type.equals(MessageTypes.ACK_MESSAGE)){
+        switch (msg.type){
+        case MessageTypes.ACK_MESSAGE:
             Intent i = new Intent(getApplicationContext(), ChatActivity.class);
             i.putExtra("username", username);
             i.putExtra("uuid", msg.uuid);
             startActivity(i);
-        }
-        else if(msg.type.equals(MessageTypes.ERROR_MESSAGE)){
+            break;
+        case MessageTypes.ERROR_MESSAGE:
             Log.d("###", "received message of type: "+msg.type);
             int errorCode;
             try {
@@ -100,9 +100,8 @@ public class MainActivity extends AppCompatActivity implements ResponseInterface
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
-        }
-        else{
+            break;
+        default:
             Log.d("###", "received message of type: "+msg.type);
         }
     }
