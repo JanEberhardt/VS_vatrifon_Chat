@@ -12,6 +12,12 @@ public class ErrorCodes {
 
 	public static final int MSG_PARSING_FAILED = 4;
 
+	public static final int TIMEOUT = 5;
+
+    public static final int UNKNOWN_HOST = 6;
+
+    public static final int UDP_ERROR = 7;
+
 	public static String getStringError(int errorCode) {
 		String error = null;
 		switch(errorCode) {
@@ -34,6 +40,14 @@ public class ErrorCodes {
 			case 4:
 				error = "Message parsing failed";
 				break;
+
+            case 5:
+                error = "Connection timeout, tried multiple times";
+                break;
+
+            case 6:
+                error = "Unknown host, please specify a valid host in the settings";
+                break;
 
 			default:
 				error = "Cannot decode error code";
