@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,8 +34,15 @@ public class ChatActivity extends AppCompatActivity implements ResponseInterface
         uuid = (UUID)getIntent().getSerializableExtra("uuid");
         TextView usernameView = (TextView) findViewById(R.id.username_view);
         TextView uuidView = (TextView) findViewById(R.id.uuid_view);
+        Button btnLogOut = (Button) findViewById(R.id.btn_log_out);
         usernameView.setText("username: "+username);
         uuidView.setText("uuid: " + uuid.toString());
+        btnLogOut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ChatActivity.this.finish();
+            }
+        });
     }
 
     @Override
