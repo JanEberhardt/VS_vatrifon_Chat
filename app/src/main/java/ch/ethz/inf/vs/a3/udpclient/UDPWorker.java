@@ -54,6 +54,7 @@ public class UDPWorker extends AsyncTask<Object, Void, String> {
             server_address = InetAddress.getByName(NetworkConsts.SERVER_ADDRESS);
         } catch (UnknownHostException e) {
             e.printStackTrace();
+            s.close();
             return ErrorCodes.UNKNOWN_HOST + "";
         }
 
@@ -65,6 +66,7 @@ public class UDPWorker extends AsyncTask<Object, Void, String> {
             Log.d("###", "request: " + request.getJson().toString());
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
+            s.close();
             return ErrorCodes.UDP_ERROR + "";
         }
 
@@ -80,6 +82,7 @@ public class UDPWorker extends AsyncTask<Object, Void, String> {
             s.send(p);
         } catch (IOException e) {
             e.printStackTrace();
+            s.close();
             return ErrorCodes.UDP_ERROR + "";
         }
 
@@ -97,9 +100,11 @@ public class UDPWorker extends AsyncTask<Object, Void, String> {
                 Log.d("###", "UDPWorker: timeout occurred");
             } catch (SocketException e) {
                 e.printStackTrace();
+                s.close();
                 return ErrorCodes.UDP_ERROR + "";
             } catch (IOException e) {
                 e.printStackTrace();
+                s.close();
                 return ErrorCodes.UDP_ERROR + "";
             }
         }
