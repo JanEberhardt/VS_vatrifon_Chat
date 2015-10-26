@@ -1,7 +1,9 @@
 package ch.ethz.inf.vs.a3;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -18,6 +20,7 @@ import org.json.JSONException;
 import ch.ethz.inf.vs.a3.message.ErrorCodes;
 import ch.ethz.inf.vs.a3.message.Message;
 import ch.ethz.inf.vs.a3.message.MessageTypes;
+import ch.ethz.inf.vs.a3.udpclient.NetworkConsts;
 import ch.ethz.inf.vs.a3.udpclient.ResponseInterface;
 import ch.ethz.inf.vs.a3.udpclient.UDPWorker;
 
@@ -58,6 +61,11 @@ public class MainActivity extends AppCompatActivity implements ResponseInterface
                 worker.execute();
             }
         });
+
+        NetworkConsts nc = new NetworkConsts();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs.registerOnSharedPreferenceChangeListener(nc);
+        nc.onSharedPreferenceChanged(prefs, "");
     }
 
     @Override
