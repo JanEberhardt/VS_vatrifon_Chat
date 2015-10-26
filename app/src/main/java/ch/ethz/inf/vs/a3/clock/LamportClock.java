@@ -42,9 +42,7 @@ public class LamportClock implements Clock {
         try {
             time = Integer.parseInt(clock);
         }
-        catch (NumberFormatException e){
-            return;
-        }
+        catch (NumberFormatException e){}
     }
 
     public void setTime(int time){
