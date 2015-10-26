@@ -41,19 +41,51 @@ public class ErrorCodes {
 				error = "Message parsing failed";
 				break;
 
-            case 5:
-                error = "Connection timeout, tried multiple times";
-                break;
+			case 5:
+				error = "Connection timeout, tried multiple times";
+				break;
 
-            case 6:
-                error = "Unknown host, please specify a valid host in the settings";
-                break;
+			case 6:
+				error = "Unknown host, please specify a valid host in the settings";
+				break;
 
 			default:
 				error = "Cannot decode error code";
 				break;
 		}
 
+		return error;
+	}
+
+	// same thing, for error codes returned by the server
+	public static String getStringErrorServer(int errorCode) {
+		String error = null;
+		switch(errorCode) {
+			case 0:
+				error = "Registration failed";
+				break;
+			case 1:
+				error = "Deregistration failed due to the UUID";
+				break;
+			case 2:
+				error = "Deregistration failed due to the username";
+				break;
+			case 3:
+				error = "User authentication fail";
+				break;
+			case 4:
+				error = "Message parsing failed";
+				break;
+            case 5:
+                error = "Server timeout";
+                break;
+            case 6:
+                error = "Unknown host, please specify a valid host in the settings";
+                break;
+			default:
+				error = "Cannot decode error code";
+				break;
+		}
 		return error;
 	}
 }
