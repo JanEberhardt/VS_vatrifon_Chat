@@ -25,7 +25,6 @@ import ch.ethz.inf.vs.a3.message.MessageTypes;
 import ch.ethz.inf.vs.a3.udpclient.ResponseInterface;
 import ch.ethz.inf.vs.a3.udpclient.UDPWorker;
 
-//todo: part 3!
 public class ChatActivity extends AppCompatActivity {
     private static final String LOG_TAG = "###chatactivity";
 
@@ -112,9 +111,8 @@ public class ChatActivity extends AppCompatActivity {
         List<String> chatLog = new ArrayList<>(messageBuffer.size());
         while(!messageBuffer.isEmpty()){
             Message msg = messageBuffer.remove();
-            String chatUser = null;
             try {
-                chatUser = msg.getJson().getJSONObject("header").getString("username");
+                String chatUser = msg.getJson().getJSONObject("header").getString("username");
                 String chatMessage = msg.getJson().getJSONObject("body").getString("content");
                 chatLog.add(String.format("<%s> %s", chatUser, chatMessage));
             } catch (JSONException e) {
@@ -137,16 +135,13 @@ public class ChatActivity extends AppCompatActivity {
      * Handle server response on a deregister request.
      */
     public void handleResponseDeregister(List<String> data) {
-        Message msg = null;
         try {
-            msg = new Message(new JSONObject(data.get(0)));
+            Message msg = new Message(new JSONObject(data.get(0)));
+            if(msg.type.equals(MessageTypes.ACK_MESSAGE)) {
+                Log.d(LOG_TAG, "deregistration successful");
+            }
         } catch (JSONException e) {
             e.printStackTrace();
-        }
-        if(msg.type.equals(MessageTypes.ACK_MESSAGE)) {
-            Log.d(LOG_TAG, "deregestration successful");
-        } else{
-
         }
     }
 

@@ -25,8 +25,8 @@ import java.util.UUID;
 import ch.ethz.inf.vs.a3.message.ErrorCodes;
 import ch.ethz.inf.vs.a3.message.Message;
 import ch.ethz.inf.vs.a3.message.MessageTypes;
-import ch.ethz.inf.vs.a3.udpclient.ResponseInterface;
 import ch.ethz.inf.vs.a3.udpclient.NetworkConsts;
+import ch.ethz.inf.vs.a3.udpclient.ResponseInterface;
 import ch.ethz.inf.vs.a3.udpclient.UDPWorker;
 
 public class MainActivity extends AppCompatActivity implements ResponseInterface {
@@ -43,7 +43,8 @@ public class MainActivity extends AppCompatActivity implements ResponseInterface
         // set the on-chance listener for the username text field
         // todo: can this be a problem with asynchronous stuff if you're really fast?
         EditText usernameText = (EditText) findViewById(R.id.username);
-        usernameText.setText("monkey"+ new Random().nextInt(1000));
+        String defaultUsername = "monkey" + new Random().nextInt(1000);
+        usernameText.setText(defaultUsername);
         usernameText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -71,9 +72,8 @@ public class MainActivity extends AppCompatActivity implements ResponseInterface
             }
         });
 
-        NetworkConsts nc = new NetworkConsts();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        prefs.registerOnSharedPreferenceChangeListener(nc);
+        NetworkConsts nc = new NetworkConsts();
         nc.onSharedPreferenceChanged(prefs, "");
     }
 

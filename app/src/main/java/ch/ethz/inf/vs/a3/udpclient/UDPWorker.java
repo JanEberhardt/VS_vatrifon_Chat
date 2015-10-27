@@ -62,7 +62,7 @@ public class UDPWorker extends AsyncTask<Object, Void, Pair<Integer, List<String
         byte[] message;
         try {
             message = request.getJson().toString().getBytes("utf-8");
-            Log.d("###", "request: " + request.getJson().toString());
+            Log.d(LOG_TAG, "request: " + request.getJson().toString());
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
             s.close();
