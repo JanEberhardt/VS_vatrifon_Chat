@@ -24,7 +24,11 @@ public class Message {
         this(username, UUID.randomUUID(), type);
     }
 
-    public Message(String username, UUID uuid, String type) {
+    public Message(String username, UUID uuid, String type){
+        this(username, uuid, type, "{}");
+    }
+
+    public Message(String username, UUID uuid, String type, String timestamp) {
         this.type = type;
         this.uuid = uuid;
         this.json = new JSONObject();
@@ -32,7 +36,7 @@ public class Message {
         try {
             header.put("username", username);
             header.put("uuid", uuid.toString());
-            header.put("timestamp", "{}");
+            header.put("timestamp", timestamp);
             header.put("type", type);
             this.json.put("header", header);
             this.json.put("body", new JSONObject());
