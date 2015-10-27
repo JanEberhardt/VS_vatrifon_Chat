@@ -16,18 +16,21 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
 import ch.ethz.inf.vs.a3.message.ErrorCodes;
 import ch.ethz.inf.vs.a3.message.Message;
 import ch.ethz.inf.vs.a3.message.MessageTypes;
-import ch.ethz.inf.vs.a3.udpclient.NetworkConsts;
 import ch.ethz.inf.vs.a3.udpclient.ResponseInterface;
+import ch.ethz.inf.vs.a3.udpclient.NetworkConsts;
 import ch.ethz.inf.vs.a3.udpclient.UDPWorker;
 
 public class MainActivity extends AppCompatActivity implements ResponseInterface {
+    private static final String LOG_TAG = "###mainactivity";
 
     private String username;
     private UUID uuid;
@@ -94,29 +97,28 @@ public class MainActivity extends AppCompatActivity implements ResponseInterface
     }
 
     @Override
-    public void handleResponse(Message msg) {
-        Log.d("###", "response: "+msg.getJson().toString());
-        switch (msg.type){
-        case MessageTypes.ACK_MESSAGE:
+    public void handleResponse(List<String> data) {
+        Message msg = null;
+        try {
+            msg = new Message(new JSONObject(data.get(0)));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        if(msg.type.equals(MessageTypes.ACK_MESSAGE)){
             Intent i = new Intent(getApplicationContext(), ChatActivity.class);
             i.putExtra("username", username);
             i.putExtra("uuid", uuid);
             startActivity(i);
-            break;
-        case MessageTypes.ERROR_MESSAGE:
-            Log.d("###", "received message of type: "+msg.type);
-            int errorCode;
-            try {
-                errorCode = msg.getJson().getJSONObject("body").getInt("content");
-                String text = ErrorCodes.getStringError(errorCode);
-                Toast toast = Toast.makeText(this, text, Toast.LENGTH_SHORT);
-                toast.show();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            break;
-        default:
-            Log.d("###", "received message of type: "+msg.type);
+        } else {
+            Log.d(LOG_TAG, "unknown message type: "+msg.type);
+            Log.d(LOG_TAG, "whole message: "+msg.getJson().toString());
         }
+    }
+
+    @Override
+    public void handleError(int errorCode) {
+        String text = ErrorCodes.getStringError(errorCode);
+        Toast toast = Toast.makeText(this, text, Toast.LENGTH_SHORT);
+        toast.show();
     }
 }

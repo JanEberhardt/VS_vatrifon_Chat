@@ -1,10 +1,8 @@
 package ch.ethz.inf.vs.a3.udpclient;
 
 import android.os.AsyncTask;
+import android.support.v4.util.Pair;
 import android.util.Log;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -14,38 +12,39 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 import ch.ethz.inf.vs.a3.message.ErrorCodes;
 import ch.ethz.inf.vs.a3.message.Message;
 import ch.ethz.inf.vs.a3.message.MessageTypes;
 
-/**
- * Created by jan on 26.10.15.
- *
- * executes a request using udp, retries a number of times according to NetworkConsts
- */
-public class UDPWorker extends AsyncTask<Object, Void, String> {
+public class UDPWorker extends AsyncTask<Object, Void, Pair<Integer, List<String>>> {
+    private static final String LOG_TAG = "###udpworker";
 
-    private ResponseInterface responseInterface;
     private Message request;
-    private int requestsLeft;
+    private ResponseInterface responseInterface;
 
-    public UDPWorker(Message request, ResponseInterface responseInterface) {
+    public UDPWorker(Message request, ResponseInterface responseInterface){
         super();
         this.responseInterface = responseInterface;
         this.request = request;
-        this.requestsLeft = NetworkConsts.RETRY_COUNT;
+    }
+
+    public UDPWorker(String username, UUID uuid, ResponseInterface responseInterface) {
+        this(new Message(username, uuid, MessageTypes.RETRIEVE_CHAT_LOG), responseInterface);
     }
 
     @Override
-    protected String doInBackground(Object... params) {
+    protected Pair<Integer, List<String>> doInBackground(Object... params) {
         // initialize the socket
         DatagramSocket s;
         try {
             s = new DatagramSocket();
         } catch (SocketException e) {
             e.printStackTrace();
-            return ErrorCodes.UDP_ERROR + "";
+            return new Pair<>(ErrorCodes.UDP_ERROR, null);
         }
 
         // make a dns lookup
@@ -55,7 +54,7 @@ public class UDPWorker extends AsyncTask<Object, Void, String> {
         } catch (UnknownHostException e) {
             e.printStackTrace();
             s.close();
-            return ErrorCodes.UNKNOWN_HOST + "";
+            return new Pair<>(ErrorCodes.UNKNOWN_HOST, null);
         }
 
         // create the request byte-array
@@ -67,7 +66,7 @@ public class UDPWorker extends AsyncTask<Object, Void, String> {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
             s.close();
-            return ErrorCodes.UDP_ERROR + "";
+            return new Pair<>(ErrorCodes.UDP_ERROR, null);
         }
 
         // put the byte-array in a udp packet
@@ -83,60 +82,48 @@ public class UDPWorker extends AsyncTask<Object, Void, String> {
         } catch (IOException e) {
             e.printStackTrace();
             s.close();
-            return ErrorCodes.UDP_ERROR + "";
+            return new Pair<>(ErrorCodes.UDP_ERROR, null);
         }
 
-        String text = ErrorCodes.TIMEOUT + "";
+        List<String> result = new ArrayList<>();
         byte[] response = new byte[NetworkConsts.PAYLOAD_SIZE];
         p = new DatagramPacket(response, response.length);
 
-        for (int i = 0; i < requestsLeft; i++) {
+        while (true) {
             try {
                 s.setSoTimeout(NetworkConsts.SOCKET_TIMEOUT);
                 s.receive(p);
-                text = new String(response, 0, p.getLength());
-                break;
+                result.add(new String(response, 0, p.getLength()));
             } catch (SocketTimeoutException e) {
-                Log.d("###", "UDPWorker: timeout occurred");
+                break;
             } catch (SocketException e) {
                 e.printStackTrace();
                 s.close();
-                return ErrorCodes.UDP_ERROR + "";
+                return new Pair<>(ErrorCodes.UDP_ERROR, null);
             } catch (IOException e) {
                 e.printStackTrace();
                 s.close();
-                return ErrorCodes.UDP_ERROR + "";
+                return new Pair<>(ErrorCodes.UDP_ERROR, null);
             }
         }
         s.close();
-        return text;
+
+        if(result.size() == 0){
+            return new Pair<>(ErrorCodes.TIMEOUT, null);
+        }
+        return new Pair<>(-1, result);
     }
 
     @Override
-    protected void onPostExecute(String result) {
-        JSONObject temp;
-        Message res;
-        int errorCode;
-        try {
-            errorCode = Integer.parseInt(result);
-        } catch (NumberFormatException e) {
-            errorCode = -1;
-        }
-
-        try {
-            // return the appropriate error message if something went wrong...
-            if (errorCode != -1) {
-                res = new Message("UDPWorker", MessageTypes.ERROR_MESSAGE);
-                res.getJson().getJSONObject("body").put("content", errorCode);
-            }
-            // otherwise return the response from the server
-            else {
-                temp = new JSONObject(result);
-                res = new Message(temp);
-            }
-            responseInterface.handleResponse(res);
-        } catch (JSONException e) {
-            e.printStackTrace();
+    protected void onPostExecute(Pair<Integer, List<String>> result) {
+        int errorCode = result.first;
+        List<String> data = result.second;
+        if (errorCode != -1) {
+            Log.d(LOG_TAG, "received error message. error code: "+errorCode);
+            responseInterface.handleError(errorCode);
+        } else {
+            Log.d(LOG_TAG, "received response: "+data);
+            responseInterface.handleResponse(data);
         }
     }
 }
