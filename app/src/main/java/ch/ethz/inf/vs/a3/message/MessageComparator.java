@@ -5,7 +5,6 @@ import org.json.JSONException;
 import java.util.Comparator;
 
 import ch.ethz.inf.vs.a3.clock.VectorClock;
-import ch.ethz.inf.vs.a3.message.Message;
 
 /**
  * Message comparator class. Use with PriorityQueue.

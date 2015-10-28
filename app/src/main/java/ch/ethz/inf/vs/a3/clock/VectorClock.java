@@ -61,8 +61,20 @@ public class VectorClock implements Clock {
         boolean happenedBefore = true;
 
         Map<Integer, Integer> temp = getMap(other);
-
         Set<Integer> keys = vector.keySet();
+
+        for(int key:keys){
+            if(temp.get(key) != null) {
+                happenedBefore = happenedBefore && vector.get(key) == temp.get(key);
+            }
+        }
+
+        // in case all are equal
+        if (happenedBefore)
+            return false;
+
+        // otherwise
+        happenedBefore = true;
         for(int key:keys){
             if(temp.get(key) != null) {
                 happenedBefore = happenedBefore && vector.get(key) <= temp.get(key);
