@@ -98,20 +98,20 @@ public class MainActivity extends AppCompatActivity implements ResponseInterface
 
     @Override
     public void handleResponse(List<String> data) {
-        Message msg = null;
+        Message msg;
         try {
             msg = new Message(new JSONObject(data.get(0)));
+            if (msg.type.equals(MessageTypes.ACK_MESSAGE)) {
+                Intent i = new Intent(getApplicationContext(), ChatActivity.class);
+                i.putExtra("username", username);
+                i.putExtra("uuid", uuid);
+                startActivity(i);
+            } else {
+                Log.d(LOG_TAG, "unknown message type: " + msg.type);
+                Log.d(LOG_TAG, "whole message: " + msg.getJson().toString());
+            }
         } catch (JSONException e) {
             e.printStackTrace();
-        }
-        if(msg.type.equals(MessageTypes.ACK_MESSAGE)){
-            Intent i = new Intent(getApplicationContext(), ChatActivity.class);
-            i.putExtra("username", username);
-            i.putExtra("uuid", uuid);
-            startActivity(i);
-        } else {
-            Log.d(LOG_TAG, "unknown message type: "+msg.type);
-            Log.d(LOG_TAG, "whole message: "+msg.getJson().toString());
         }
     }
 

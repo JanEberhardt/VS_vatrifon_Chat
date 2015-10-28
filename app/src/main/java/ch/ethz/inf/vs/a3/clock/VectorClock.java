@@ -7,7 +7,7 @@ import java.util.Set;
 
 /**
  * Created by jan on 23.10.15.
- *
+ * <p/>
  * implementation of VectorClocks
  */
 public class VectorClock implements Clock {
@@ -17,7 +17,7 @@ public class VectorClock implements Clock {
      */
     private Map<Integer, Integer> vector;
 
-    public VectorClock(){
+    public VectorClock() {
         this.vector = new HashMap<>();
     }
 
@@ -27,17 +27,17 @@ public class VectorClock implements Clock {
         Map<Integer, Integer> temp = getMap(other);
 
         Set<Integer> keys = vector.keySet();
-        for(int key:keys){
-            if(temp.get(key) != null) {
-                if(temp.get(key) > vector.get(key))
+        for (int key : keys) {
+            if (temp.get(key) != null) {
+                if (temp.get(key) > vector.get(key))
                     vector.put(key, temp.get(key));
             }
         }
 
         // needs to be done, because we also want to add processes that are not yet in our vector
         keys = temp.keySet();
-        for(int key:keys){
-            if(vector.get(key) == null) {
+        for (int key : keys) {
+            if (vector.get(key) == null) {
                 vector.put(key, temp.get(key));
             }
         }
@@ -63,9 +63,9 @@ public class VectorClock implements Clock {
         Map<Integer, Integer> temp = getMap(other);
         Set<Integer> keys = vector.keySet();
 
-        for(int key:keys){
-            if(temp.get(key) != null) {
-                happenedBefore = happenedBefore && vector.get(key) == temp.get(key);
+        for (int key : keys) {
+            if (temp.get(key) != null) {
+                happenedBefore = happenedBefore && vector.get(key).equals(temp.get(key));
             }
         }
 
@@ -75,8 +75,8 @@ public class VectorClock implements Clock {
 
         // otherwise
         happenedBefore = true;
-        for(int key:keys){
-            if(temp.get(key) != null) {
+        for (int key : keys) {
+            if (temp.get(key) != null) {
                 happenedBefore = happenedBefore && vector.get(key) <= temp.get(key);
             }
         }
@@ -88,11 +88,12 @@ public class VectorClock implements Clock {
     public void setClockFromString(String clock) {
         try {
             vector = getMapFromString(clock);
-        } catch (NumberFormatException e){}
+        } catch (NumberFormatException e) {
+        }
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         StringBuilder sb = new StringBuilder();
         Set<Integer> keys = vector.keySet();
         Iterator<Integer> it = keys.iterator();
@@ -100,12 +101,12 @@ public class VectorClock implements Clock {
         sb.append("{");
 
         // iterate over all the keys, if there are none, we just return {}
-        while(it.hasNext()){
+        while (it.hasNext()) {
             int key = it.next();
             // represents a key value par, e.g: "1":2
             String keyVal = "\"" + key + "\"" + ":" + vector.get(key);
             sb.append(keyVal);
-            if(it.hasNext())
+            if (it.hasNext())
                 sb.append(",");
         }
         sb.append("}");
@@ -113,25 +114,25 @@ public class VectorClock implements Clock {
         return sb.toString();
     }
 
-    public int getTime(int pid){
+    public int getTime(int pid) {
         return vector.get(pid);
     }
 
-    public void addProcess(int pid, int time){
+    public void addProcess(int pid, int time) {
         vector.put(pid, time);
     }
 
     /**
      * Helper method that returns a pid -> logic-time map from a given vector-clock
      */
-    private Map<Integer, Integer> getMap(Clock clock){
+    private Map<Integer, Integer> getMap(Clock clock) {
         return getMapFromString(clock.toString());
     }
 
     /**
      * Helper method that returns a pid -> logic-time map from a given string representation
      */
-    private Map<Integer, Integer> getMapFromString(String clock) throws NumberFormatException{
+    private Map<Integer, Integer> getMapFromString(String clock) throws NumberFormatException {
 
         Map<Integer, Integer> res = new HashMap<>();
 
@@ -139,7 +140,7 @@ public class VectorClock implements Clock {
 
         // if the string is empty, we want to return here, otherwise we get a
         // parse error later...
-        if(keyValues[0].isEmpty())
+        if (keyValues[0].isEmpty())
             return res;
 
         for (String keyVal : keyValues) {

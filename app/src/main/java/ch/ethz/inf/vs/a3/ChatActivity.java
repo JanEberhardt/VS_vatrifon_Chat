@@ -38,7 +38,7 @@ public class ChatActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chat);
 
         username = getIntent().getStringExtra("username");
-        uuid = (UUID)getIntent().getSerializableExtra("uuid");
+        uuid = (UUID) getIntent().getSerializableExtra("uuid");
 
         TextView usernameView = (TextView) findViewById(R.id.txt_username);
         TextView uuidView = (TextView) findViewById(R.id.txt_uuid);
@@ -46,16 +46,19 @@ public class ChatActivity extends AppCompatActivity {
         Button btnLogOut = (Button) findViewById(R.id.btn_log_out);
         lstChat = (ListView) findViewById(R.id.lst_chat_messages);
 
-        usernameView.setText("username: "+username);
-        uuidView.setText("uuid: " + uuid.toString());
-        btnUpdate.setOnClickListener(new View.OnClickListener(){
+        String usernameString = "username: " + username;
+        usernameView.setText(usernameString);
+        String uuidString = "uuid: " + uuid.toString();
+        uuidView.setText(uuidString);
+        btnUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v){
+            public void onClick(View v) {
                 UDPWorker worker = new UDPWorker(username, uuid, new ResponseInterface() {
                     @Override
                     public void handleResponse(List<String> data) {
                         ChatActivity.this.handleResponseChatLog(data);
                     }
+
                     @Override
                     public void handleError(int errorCode) {
                         ChatActivity.this.handleErrorChatLog(errorCode);
@@ -97,7 +100,7 @@ public class ChatActivity extends AppCompatActivity {
 
         // convert data
         PriorityQueue<Message> messageBuffer = new PriorityQueue<>(data.size(), new MessageComparator());
-        for(String str: data){
+        for (String str : data) {
             try {
                 JSONObject json = new JSONObject(str);
                 Message msg = new Message(json);
@@ -109,7 +112,7 @@ public class ChatActivity extends AppCompatActivity {
         }
 
         List<String> chatLog = new ArrayList<>(messageBuffer.size());
-        while(!messageBuffer.isEmpty()){
+        while (!messageBuffer.isEmpty()) {
             Message msg = messageBuffer.remove();
             try {
                 String chatUser = msg.getJson().getJSONObject("header").getString("username");
@@ -137,7 +140,7 @@ public class ChatActivity extends AppCompatActivity {
     public void handleResponseDeregister(List<String> data) {
         try {
             Message msg = new Message(new JSONObject(data.get(0)));
-            if(msg.type.equals(MessageTypes.ACK_MESSAGE)) {
+            if (msg.type.equals(MessageTypes.ACK_MESSAGE)) {
                 Log.d(LOG_TAG, "deregistration successful");
             }
         } catch (JSONException e) {

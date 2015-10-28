@@ -7,6 +7,7 @@ import java.util.UUID;
 
 /**
  * Created by jan on 23.10.15.
+ *
  */
 public class Message {
 
@@ -15,16 +16,16 @@ public class Message {
     public UUID uuid;
 
     public Message(JSONObject json) throws JSONException {
-        this.json=json;
+        this.json = json;
         this.type = json.getJSONObject("header").getString("type");
         this.uuid = UUID.fromString(json.getJSONObject("header").getString("uuid"));
     }
 
-    public Message(String username, String type){
+    public Message(String username, String type) {
         this(username, UUID.randomUUID(), type);
     }
 
-    public Message(String username, UUID uuid, String type){
+    public Message(String username, UUID uuid, String type) {
         this(username, uuid, type, "{}");
     }
 
@@ -45,7 +46,7 @@ public class Message {
         }
     }
 
-    public JSONObject getJson(){
+    public JSONObject getJson() {
         return json;
     }
 }

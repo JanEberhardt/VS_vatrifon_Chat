@@ -2,7 +2,7 @@ package ch.ethz.inf.vs.a3.clock;
 
 /**
  * Created by jan on 23.10.15.
- *
+ * <p/>
  * simple implementation of LamportClock
  */
 public class LamportClock implements Clock {
@@ -12,7 +12,7 @@ public class LamportClock implements Clock {
     @Override
     public void update(Clock other) {
         LamportClock otherL = (LamportClock) other;
-        if(otherL.getTime() > getTime())
+        if (otherL.getTime() > getTime())
             time = otherL.getTime();
     }
 
@@ -33,23 +33,23 @@ public class LamportClock implements Clock {
     }
 
     @Override
-    public String toString(){
-        return time+"";
+    public String toString() {
+        return time + "";
     }
 
     @Override
     public void setClockFromString(String clock) {
         try {
             time = Integer.parseInt(clock);
+        } catch (NumberFormatException e) {
         }
-        catch (NumberFormatException e){}
     }
 
-    public void setTime(int time){
+    public void setTime(int time) {
         this.time = time;
     }
 
-    public int getTime(){
+    public int getTime() {
         return time;
     }
 }
