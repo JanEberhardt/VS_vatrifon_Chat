@@ -69,49 +69,59 @@ public class UDPWorker extends AsyncTask<Object, Void, Pair<Integer, List<String
             return new Pair<>(ErrorCodes.UDP_ERROR, null);
         }
 
-        // put the byte-array in a udp packet
-        DatagramPacket p = new DatagramPacket(
-                message,
-                msg_length,
-                server_address,
-                NetworkConsts.UDP_PORT);
 
-        // try to send the packet
-        try {
-            s.send(p);
-        } catch (IOException e) {
-            e.printStackTrace();
-            s.close();
-            return new Pair<>(ErrorCodes.UDP_ERROR, null);
-        }
+        // send the request and wait for a result, if timeout occurred do it again!
+        for(int i = NetworkConsts.RETRY_COUNT;i>0;i--){
 
-        List<String> result = new ArrayList<>();
-        byte[] response = new byte[NetworkConsts.PAYLOAD_SIZE];
-        p = new DatagramPacket(response, response.length);
+            if(i<5)
+                Log.d(LOG_TAG, "timeout occurred, retrying");
 
-        while (true) {
+            // put the byte-array in a udp packet
+            DatagramPacket p = new DatagramPacket(
+                    message,
+                    msg_length,
+                    server_address,
+                    NetworkConsts.UDP_PORT);
+
+            // try to send the packet
             try {
-                s.setSoTimeout(NetworkConsts.SOCKET_TIMEOUT);
-                s.receive(p);
-                result.add(new String(response, 0, p.getLength()));
-            } catch (SocketTimeoutException e) {
-                break;
-            } catch (SocketException e) {
-                e.printStackTrace();
-                s.close();
-                return new Pair<>(ErrorCodes.UDP_ERROR, null);
+                s.send(p);
             } catch (IOException e) {
                 e.printStackTrace();
                 s.close();
                 return new Pair<>(ErrorCodes.UDP_ERROR, null);
             }
+
+            List<String> result = new ArrayList<>();
+            byte[] response = new byte[NetworkConsts.PAYLOAD_SIZE];
+            p = new DatagramPacket(response, response.length);
+
+
+            while (true) {
+                try {
+                    s.setSoTimeout(NetworkConsts.SOCKET_TIMEOUT);
+                    s.receive(p);
+                    result.add(new String(response, 0, p.getLength()));
+                } catch (SocketTimeoutException e) {
+                    break;
+                } catch (SocketException e) {
+                    e.printStackTrace();
+                    s.close();
+                    return new Pair<>(ErrorCodes.UDP_ERROR, null);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    s.close();
+                    return new Pair<>(ErrorCodes.UDP_ERROR, null);
+                }
+            }
+
+            if(result.size() != 0) {
+                s.close();
+                return new Pair<>(-1, result);
+            }
         }
         s.close();
-
-        if(result.size() == 0){
-            return new Pair<>(ErrorCodes.TIMEOUT, null);
-        }
-        return new Pair<>(-1, result);
+        return new Pair<>(ErrorCodes.TIMEOUT, null);
     }
 
     @Override

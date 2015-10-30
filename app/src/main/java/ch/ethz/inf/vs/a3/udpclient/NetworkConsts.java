@@ -25,7 +25,7 @@ public final class NetworkConsts implements SharedPreferences.OnSharedPreference
     /**
      * Time to wait for a message in ms
      */
-    public static final int SOCKET_TIMEOUT = 100;
+    public static final int SOCKET_TIMEOUT = 1000;
 
     /**
      * Number of times trying after timeout
