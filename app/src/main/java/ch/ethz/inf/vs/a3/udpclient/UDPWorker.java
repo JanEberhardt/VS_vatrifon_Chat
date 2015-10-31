@@ -73,7 +73,7 @@ public class UDPWorker extends AsyncTask<Object, Void, Pair<Integer, List<String
         // send the request and wait for a result, if timeout occurred do it again!
         for(int i = NetworkConsts.RETRY_COUNT;i>0;i--){
 
-            if(i<5)
+            if(i < NetworkConsts.RETRY_COUNT)
                 Log.d(LOG_TAG, "timeout occurred, retrying");
 
             // put the byte-array in a udp packet
@@ -95,7 +95,6 @@ public class UDPWorker extends AsyncTask<Object, Void, Pair<Integer, List<String
             List<String> result = new ArrayList<>();
             byte[] response = new byte[NetworkConsts.PAYLOAD_SIZE];
             p = new DatagramPacket(response, response.length);
-
 
             while (true) {
                 try {
